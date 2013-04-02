@@ -21,6 +21,7 @@ struct network_config {
 	double learning_rate;
 	int seed_value;
 	double momentum;
+	int batch_size;
 };
 
 int read_config(char* filename, struct network_config* config);

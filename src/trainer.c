@@ -21,8 +21,9 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	int i, j;
 	double learning_rate = configuration->learning_rate;
 	double momentum = configuration->momentum;
+	int batchsz = configuration->batch_size;
 
-	/* Allocate variables to store weights */
+	/* Allocate variables to store weights, activations and deltas */
 	int num_input = configuration->num_input_nodes;
 	int num_hidden = configuration->num_hidden_nodes ;
 	int num_output = configuration->num_output_nodes;
@@ -39,23 +40,18 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	double range = MAX_INITWT - MIN_INITWT;
 
 	/* Randomly initialize weights */
-	
 	int seed = configuration->seed_value;
 	if(seed < 0) {
 		seed = time(0);
 	}
 	srand(seed);
 
-	for(i = 0; i <num_hidden; i++){
-		for(j = 0; j < num_input+1; j++) {
+	for(i = 0; i <num_hidden; i++)
+		for(j = 0; j < num_input+1; j++)
 			ih_wts[i][j] = get_random(range);
-		}
-	}
-	for(i = 0; i <num_output; i++){
-		for(j = 0; j < num_hidden+1; j++) {
+	for(i = 0; i <num_output; i++)
+		for(j = 0; j < num_hidden+1; j++)
 			ho_wts[i][j] = get_random(range);
-		}
-	}
 
 	/* Initialize previous weight change values for momentum  */
 	for(i = 0; i < num_hidden; i++)
@@ -65,6 +61,16 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 		for(j = 0; j < num_hidden+1; j++)
 			prev_ho_wtupdt[i][j] = 0;
 
+	/* If a proper batch size is not specified, do online gradient descent */
+	if(batchsz < 1)
+		batchsz = 1;
+
+	/* Initialize deltas to 0, for accumulation in minibatch gradient descent */
+	for(i = 0; i < num_hidden; i++)
+		hid_deltas[i] = 0;
+	for(i = 0; i < num_output; i++)
+		out_deltas[i] = 0;
+
 	/* Set bias value in the hidden layer*/
 	hid_acts[0] = 1.0;
 
@@ -73,10 +79,13 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	for(iter = 0 ; iter < configuration->num_iterations; iter++) {
 		double cost = 0;
 		double wt_update = 0;
+		int instance_num = 0;
 		datanode = dataset;
 		while(datanode != NULL) {
 			inp_vals = datanode->input;
 			out_vals = datanode->output;
+			
+			instance_num++;
 
 			/***  Perform forward propagation  ***/
 			/* Compute hidden layer activations */
@@ -103,14 +112,18 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 			/*** Perform backpropagation ***/
 			/* Compute output layer deltas */
 			for(i = 0; i < num_output; i++)
-				out_deltas[i] = out_acts[i] * (1 - out_acts[i]) * (out_vals[i] - out_acts[i]);
+				out_deltas[i] += out_acts[i] * (1 - out_acts[i]) * (out_vals[i] - out_acts[i]);
 			/* Compute hidden later deltas */
 			for(i = 0; i < num_hidden; i++) {
 				sum = 0;
 				for(j = 0; j < num_output; j++)
 					sum += out_deltas[j] * ho_wts[j][i+1];				
-				hid_deltas[i] = hid_acts[i] * (1 - hid_acts[i]) * sum;
+				hid_deltas[i] += hid_acts[i] * (1 - hid_acts[i]) * sum;
 			}
+
+			/* If we are not finished accumulating for this mini batch and not reached the end of the dataset  */
+			if(instance_num % batchsz != 0 && instance_num < dataset_size)
+				continue;
 
 			/* Adjust weights between hidden and output layers*/
 			for(i = 0; i < num_output; i++){
@@ -128,6 +141,12 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 					prev_ih_wtupdt[i][j] = wt_update;
 				}
 			}
+	
+			/* Reset accumulated deltas for next mini batch */
+			for(i = 0; i < num_hidden; i++)
+				hid_deltas[i] = 0;
+			for(i = 0; i < num_output; i++)
+				out_deltas[i] = 0;
 
 			datanode = datanode->next;
 		}
