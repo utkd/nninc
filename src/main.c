@@ -81,11 +81,11 @@ int main(int argc, char* argv[]) {
 		printf("Configuration loaded successfully.\n");
 	}
 
-	/* Read the validation file*/
+	/* Read the data file*/
 	struct data_instance* dataset = NULL;
 	int num_instances = read_data(data_file, &dataset, configuration.num_input_nodes, configuration.num_output_nodes);
 	if(num_instances == -1){
-		printf("Something went validation setg in reading data. Exiting.\n");
+		printf("Something went wrong in reading data set. Exiting.\n");
 		return 1;
 	}
 	else {
