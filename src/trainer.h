@@ -14,8 +14,8 @@
 #include "config.h"
 #include "data.h"
 
-const double MIN_INITWT = -0.3;
-const double MAX_INITWT = 0.3;
+const double MIN_INITWT = -0.02;
+const double MAX_INITWT = 0.02;
 
 int train(struct data_instance* dataset, struct data_instance* validationset, int dataset_size, struct network_config* configuration);
 

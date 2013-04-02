@@ -33,8 +33,8 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	double hid_deltas[num_hidden];
 	double out_deltas[num_output];
 
-	double prev_hiddeltas[num_hidden];
-	double prev_outdeltas[num_output];
+	double prev_ih_wtupdt[num_hidden][num_input + 1];
+	double prev_ho_wtupdt[num_output][num_hidden + 1];
 
 	double range = MAX_INITWT - MIN_INITWT;
 
@@ -57,11 +57,13 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 		}
 	}
 
-	/* Initialize previous deltas for momentum  */
+	/* Initialize previous weight change values for momentum  */
 	for(i = 0; i < num_hidden; i++)
-		prev_hiddeltas[i] = 0;
+		for(j = 0; j < num_input+1; j++)
+			prev_ih_wtupdt[i][j] = 0;
 	for(i = 0; i < num_output; i++)
-		prev_outdeltas[i] = 0;
+		for(j = 0; j < num_hidden+1; j++)
+			prev_ho_wtupdt[i][j] = 0;
 
 	/* Set bias value in the hidden layer*/
 	hid_acts[0] = 1.0;
@@ -70,6 +72,7 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	/* Iterate over the training set */
 	for(iter = 0 ; iter < configuration->num_iterations; iter++) {
 		double cost = 0;
+		double wt_update = 0;
 		datanode = dataset;
 		while(datanode != NULL) {
 			inp_vals = datanode->input;
@@ -111,20 +114,20 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 
 			/* Adjust weights between hidden and output layers*/
 			for(i = 0; i < num_output; i++){
-				for(j = 0; j < num_hidden+1; j++)
-					ho_wts[i][j] += learning_rate * hid_acts[j] * out_deltas[i] + momentum * prev_outdeltas[i];
+				for(j = 0; j < num_hidden+1; j++) {
+					wt_update = learning_rate * hid_acts[j] * out_deltas[i] + momentum * prev_ho_wtupdt[i][j];
+					ho_wts[i][j] += wt_update;
+					prev_ho_wtupdt[i][j] = wt_update;
+				}
 			}
 			/* Adjust weights between input and hidden layers*/
 			for(i = 0; i < num_hidden; i++){
-				for(j = 0; j < num_input+1; j++)
-					ih_wts[i][j] += learning_rate * inp_vals[j] * hid_deltas[i] + momentum * prev_hiddeltas[i];
+				for(j = 0; j < num_input+1; j++) {
+					wt_update = learning_rate * inp_vals[j] * hid_deltas[i] + momentum * prev_ih_wtupdt[i][j];
+					ih_wts[i][j] += wt_update;
+					prev_ih_wtupdt[i][j] = wt_update;
+				}
 			}
-
-			/* Save delta values for next iteration */	
-			for(i = 0; i < num_hidden; i++)
-				prev_hiddeltas[i] = hid_deltas[i];
-			for(i = 0; i < num_output; i++)
-				prev_outdeltas[i] = out_deltas[i];
 
 			datanode = datanode->next;
 		}
