@@ -20,6 +20,7 @@ struct network_config {
 	int num_iterations;
 	double learning_rate;
 	int seed_value;
+	double momentum;
 };
 
 int read_config(char* filename, struct network_config* config);

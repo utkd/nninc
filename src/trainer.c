@@ -20,6 +20,7 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	double sum;
 	int i, j;
 	double learning_rate = configuration->learning_rate;
+	double momentum = configuration->momentum;
 
 	/* Allocate variables to store weights */
 	int num_input = configuration->num_input_nodes;
@@ -31,6 +32,9 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	double out_acts[num_output];
 	double hid_deltas[num_hidden];
 	double out_deltas[num_output];
+
+	double prev_hiddeltas[num_hidden];
+	double prev_outdeltas[num_output];
 
 	double range = MAX_INITWT - MIN_INITWT;
 
@@ -53,6 +57,12 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 		}
 	}
 
+	/* Initialize previous deltas for momentum  */
+	for(i = 0; i < num_hidden; i++)
+		prev_hiddeltas[i] = 0;
+	for(i = 0; i < num_output; i++)
+		prev_outdeltas[i] = 0;
+
 	/* Set bias value in the hidden layer*/
 	hid_acts[0] = 1.0;
 
@@ -74,7 +84,6 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 				}
 				hid_acts[i + 1] = apply_actfn(sum);			
 			}
-
 			/* Compute output layer activations */
 			for(i = 0; i < num_output; i++){
 				sum = 0;
@@ -103,13 +112,19 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 			/* Adjust weights between hidden and output layers*/
 			for(i = 0; i < num_output; i++){
 				for(j = 0; j < num_hidden+1; j++)
-					ho_wts[i][j] += learning_rate * hid_acts[j] * out_deltas[i];
+					ho_wts[i][j] += learning_rate * hid_acts[j] * out_deltas[i] + momentum * prev_outdeltas[i];
 			}
 			/* Adjust weights between input and hidden layers*/
 			for(i = 0; i < num_hidden; i++){
 				for(j = 0; j < num_input+1; j++)
-					ih_wts[i][j] += learning_rate * inp_vals[j] * hid_deltas[i];
+					ih_wts[i][j] += learning_rate * inp_vals[j] * hid_deltas[i] + momentum * prev_hiddeltas[i];
 			}
+
+			/* Save delta values for next iteration */	
+			for(i = 0; i < num_hidden; i++)
+				prev_hiddeltas[i] = hid_deltas[i];
+			for(i = 0; i < num_output; i++)
+				prev_outdeltas[i] = out_deltas[i];
 
 			datanode = datanode->next;
 		}
