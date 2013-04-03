@@ -16,6 +16,9 @@
 
 const double MIN_INITWT = -0.02;
 const double MAX_INITWT = 0.02;
+	
+double* hid_deltas;
+double* out_deltas;
 
 int train(struct data_instance* dataset, struct data_instance* validationset, int dataset_size, struct network_config* configuration);
 

@@ -31,13 +31,15 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 	double ho_wts[num_output][num_hidden + 1];
 	double hid_acts[num_hidden + 1];
 	double out_acts[num_output];
-	double hid_deltas[num_hidden];
-	double out_deltas[num_output];
 
 	double prev_ih_wtupdt[num_hidden][num_input + 1];
 	double prev_ho_wtupdt[num_output][num_hidden + 1];
 
 	double range = MAX_INITWT - MIN_INITWT;
+
+	/* Allocate memory for deltas */
+	hid_deltas = (double*)malloc(sizeof(double) * num_hidden);
+	out_deltas = (double*)malloc(sizeof(double) * num_output);
 
 	/* Randomly initialize weights */
 	int seed = configuration->seed_value;
