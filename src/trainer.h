@@ -26,4 +26,6 @@ double get_random(double range);
 
 double apply_actfn(double z);
 
+void forward_propogate(int ninp, int nhid, int nout, double* ihwts, double* howts, double* inpvals, double* outvals, double* hidacts, double* outacts);
+
 #endif

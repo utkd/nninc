@@ -90,23 +90,8 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 			instance_num++;
 
 			/***  Perform forward propagation  ***/
-			/* Compute hidden layer activations */
-			for(i = 0; i < num_hidden; i++){
-				sum = 0;
-				for(j = 0; j < num_input+1; j++){
-					sum += inp_vals[j] * ih_wts[i][j];
-				}
-				hid_acts[i + 1] = apply_actfn(sum);			
-			}
-			/* Compute output layer activations */
-			for(i = 0; i < num_output; i++){
-				sum = 0;
-				for(j = 0; j < num_hidden+1; j++) {				
-					sum += hid_acts[j] * ho_wts[i][j];
-				}
-				out_acts[i] = apply_actfn(sum);
-			}
-
+			forward_propogate(num_input, num_hidden, num_output, &ih_wts[0][0], &ho_wts[0][0], inp_vals, out_vals, hid_acts, out_acts);
+			
 			/* Compute cost */
 			for(i = 0; i < num_output; i++)
 				cost = cost + (out_acts[i] - out_vals[i]) * (out_acts[i] - out_vals[i]);
@@ -163,26 +148,10 @@ int train(struct data_instance* dataset, struct data_instance* validationset, in
 		while(validation_node != NULL) {
 			inp_vals = validation_node->input;
 			out_vals = validation_node->output;
-
-			/***  Perform forward propagation  ***/
-			/* Compute hidden layer activations */
-			for(i = 0; i < num_hidden; i++){
-				sum = 0;
-				for(j = 0; j < num_input+1; j++){
-					sum += inp_vals[j] * ih_wts[i][j];
-				}
-				hid_acts[i + 1] = apply_actfn(sum);			
-			}
-
-			/* Compute output layer activations */
-			for(i = 0; i < num_output; i++){
-				sum = 0;
-				for(j = 0; j < num_hidden+1; j++) {				
-					sum += hid_acts[j] * ho_wts[i][j];
-				}
-				out_acts[i] = apply_actfn(sum);
-			}
-
+				
+			/* Forward propagation */
+			forward_propogate(num_input, num_hidden, num_output, &ih_wts[0][0], &ho_wts[0][0], inp_vals, out_vals, hid_acts, out_acts);
+			
 			/* Compute cost */
 			for(i = 0; i < num_output; i++)
 				cost = cost + (out_acts[i] - out_vals[i]) * (out_acts[i] - out_vals[i]);
@@ -224,4 +193,26 @@ double get_random(double range) {
 
 double apply_actfn(double z) {
 	return 1.0 / (1.0 + exp(-z));
+}
+
+void forward_propogate(int ninp, int nhid, int nout, double* ihwts, double* howts, double* inpvals, double* outvals, double* hidacts, double* outacts) {
+	double sum;
+	int i, j;
+	/***  Perform forward propagation  ***/
+	/* Compute hidden layer activations */
+	for(i = 0; i < nhid; i++){
+		sum = 0;
+		for(j = 0; j < ninp+1; j++){
+			sum += inpvals[j] * ihwts[i*(ninp+1)+j];
+		}
+		hidacts[i + 1] = apply_actfn(sum);			
+	}
+	/* Compute output layer activations */
+	for(i = 0; i < nout; i++){
+		sum = 0;
+		for(j = 0; j < nhid+1; j++) {				
+			sum += hidacts[j] * howts[i*(nhid+1)+j];
+		}
+		outacts[i] = apply_actfn(sum);
+	}
 }
