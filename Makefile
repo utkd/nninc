@@ -6,8 +6,8 @@ CPPFLAGS=
 LDFLAGS=
 
 PROG = nninc
-HDRS = src/config.h src/data.h src/trainer.h
-SRCS = src/main.c src/config.c src/data.c src/trainer.c
+HDRS = src/config.h src/data.h src/trainer.h src/testinh.h
+SRCS = src/main.c src/config.c src/data.c src/trainer.c src/testing.c
 
 #Object files have same name as sources except with a .o
 OBJS = $(SRCS:.c=.o)
@@ -24,6 +24,8 @@ config.o : src/config.c
 data.o: src/data.c
 
 trainer.o: src/trainer.c src/data.c src/config.c
+
+testing.o: src/testing.c src/data/c src/trainer.c
 
 #Clean target
 clean:

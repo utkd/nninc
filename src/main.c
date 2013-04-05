@@ -28,10 +28,12 @@ int main(int argc, char* argv[]) {
 	const char* config_option = "-config";
 	const char* model_option = "-model";
 	const char* validation_option = "-validation";
+	const char* output_option = "-output";
 	char *config_file = "config.conf";
 	char *model_file = "model.mdl";
 	char *validation_file = NULL;
 	char *data_file;
+	char *output_file = NULL;
 	int option;
 	int do_training = 1;
 	int do_validation = 0;
@@ -65,6 +67,8 @@ int main(int argc, char* argv[]) {
 				model_file = argv[++option];
 			if(strcmp(argv[option], validation_option) == 0)
 				validation_file = argv[++option];
+			if(strcmp(argv[option], output_option) == 0)
+				output_file = argv[++option];
 		}
 	}
 
@@ -113,7 +117,10 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else {
-
+		result = test(dataset, model_file, output_file, num_instances);
+		if(result == 0){
+			printf("Testing failed.\n");
+		}
 	}
 	return 0;
 }

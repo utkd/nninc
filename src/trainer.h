@@ -14,8 +14,8 @@
 #include "config.h"
 #include "data.h"
 
-const double MIN_INITWT = -0.02;
-const double MAX_INITWT = 0.02;
+double MIN_INITWT;
+double MAX_INITWT;
 	
 double* hid_deltas;
 double* out_deltas;
