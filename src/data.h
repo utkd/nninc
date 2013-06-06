@@ -20,3 +20,4 @@ struct data_instance {
 int read_data(char* filename, struct data_instance** dataset_head, int num_input, int num_output);
 
 #endif
+

@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
 	const char* model_option = "-model";
 	const char* validation_option = "-validation";
 	const char* output_option = "-output";
+	const char* save_activations_option = "-saveacts";
 	char *config_file = "config.conf";
 	char *model_file = "model.mdl";
 	char *validation_file = NULL;
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
 	int option;
 	int do_training = 1;
 	int do_validation = 0;
+	int save_activations = 0;
 	int i;
 	
 	/* Check if required arguments are provided */
@@ -69,6 +71,8 @@ int main(int argc, char* argv[]) {
 				validation_file = argv[++option];
 			if(strcmp(argv[option], output_option) == 0)
 				output_file = argv[++option];
+			if(strcmp(argv[option], save_activations_option) == 0)
+				save_activations = 1;
 		}
 	}
 
@@ -117,7 +121,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else {
-		result = test(dataset, model_file, output_file, num_instances);
+		result = test(dataset, model_file, output_file, num_instances, save_activations);
 		if(result == 0){
 			printf("Testing failed.\n");
 		}

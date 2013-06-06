@@ -13,6 +13,8 @@
 
 #include "data.h"
 
-int test(struct data_instance* dataset, char* model_filename, char* output_filename, int dataset_size);
+const char* activations_filename = "activations.out";
+
+int test(struct data_instance* dataset, char* model_filename, char* output_filename, int dataset_size, int save_activations);
 
 #endif

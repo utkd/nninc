@@ -13,7 +13,7 @@
 #include "trainer.h"
 #include "testing.h"
 
-int test(struct data_instance* dataset, char* model_filename, char* output_filename, int dataset_size) {
+int test(struct data_instance* dataset, char* model_filename, char* output_filename, int dataset_size, int save_activations) {
 	struct data_instance* datanode = NULL;
 	int num_input, num_hidden, num_output;
 	int i, j, t;
@@ -73,6 +73,14 @@ int test(struct data_instance* dataset, char* model_filename, char* output_filen
 		out_fp = fopen(output_filename, "w");
 	if(!out_fp)
 		out_fp = stdout;
+
+	/* If activations are to be saved, open an output file */
+	FILE* acts_fp = NULL;
+	if(save_activations) {
+		acts_fp = fopen(activations_filename, "w");
+		if(!acts_fp)
+			save_activations = 0;
+	}
 	
 	double cost = 0;
 	double* inp_vals;
@@ -95,10 +103,19 @@ int test(struct data_instance* dataset, char* model_filename, char* output_filen
 			fprintf(out_fp, "%lf ", out_acts[i]);
 		fprintf(out_fp, "\n");
 
+		/* Print hidden layer activations, if required */
+		if(save_activations) {
+			for(i = 1; i < num_hidden + 1; i++)
+				fprintf(acts_fp, "%lf ", hid_acts[i]);
+			fprintf(acts_fp, "\n");
+		}
+
 		datanode = datanode->next;
 	}
 	
 	printf("Average squared error on test set: %lf\n", (cost/dataset_size));
 	fclose(out_fp);
+	if(save_activations)
+		fclose(acts_fp);
 	return 1; 
 }	

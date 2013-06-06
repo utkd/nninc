@@ -63,3 +63,4 @@ int read_data(char* filename, struct data_instance** dataset_head, int num_input
 		current = datanode;
 	}
 }
+
