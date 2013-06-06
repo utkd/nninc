@@ -22,6 +22,10 @@ Neural Network implementation in C. Support for adaptable learning rate, multipl
 
   Use the specified validation file during training.
 
+* `-saveacts`
+
+  Save the activations of the hidden layer in a separate file. Use this option in the testing phase to save hidden layer activations to a file `activations.out`. This is particularly useful when creating a network of stacked autoencoders. The saved activations can be used as input to the next autoencoder.
+
 ####Instructions:
 1. Build the code using the provided Makefile.
 2. Setup a config file to describe the network and learning parameters.
