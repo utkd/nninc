@@ -21,6 +21,10 @@ Neural Network implementation in C. Support for adaptable learning rate, multipl
 * `-validation <filename>`
 
   Use the specified validation file during training.
+  
+* `-output <filename>`
+
+  File to print testset predictions to. If not provided, predictions are printed to `stdout`.
 
 * `-saveacts`
 
