@@ -118,4 +118,5 @@ int test(struct data_instance* dataset, char* model_filename, char* output_filen
 	if(save_activations)
 		fclose(acts_fp);
 	return 1; 
-}	
+}
+	
